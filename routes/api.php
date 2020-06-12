@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'jwt.auth'], function (Route $api) {
+    Route::group(['prefix' => 'auth'], function (Route $api) {
+        $api->post('logout', 'AuthController@logout');
+        $api->post('refresh', 'AuthController@refresh');
+        $api->post('me', 'AuthController@me');
+    });
+    Route::post('/recipes', 'RecipeController@store');
 });
+
+Route::post('auth/login', 'AuthController@login');
+Route::get('/random', 'RecipeController@random');
